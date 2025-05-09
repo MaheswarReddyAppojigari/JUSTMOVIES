@@ -83,7 +83,6 @@ function MovieDetails({ watched, selectedId, onCloseMovie, onAddWatched }) {
   const watchedUserRating = watched.find(
     (movie) => movie.imdbID === selectedId?.userRating
   );
-
   const {
     Title: title,
     Year: year,
@@ -96,7 +95,6 @@ function MovieDetails({ watched, selectedId, onCloseMovie, onAddWatched }) {
     Director: director,
     Genre: genre,
   } = movie;
-
   function handleAdd() {
     const newWatchedMovie = {
       imdbID: selectedId,
@@ -110,7 +108,6 @@ function MovieDetails({ watched, selectedId, onCloseMovie, onAddWatched }) {
     onAddWatched(newWatchedMovie);
     onCloseMovie();
   }
-  
   useEffect(
     function () {
       function callback(e) {
@@ -215,14 +212,8 @@ const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
 export default function App() {
-  
-  // const [movies, setMovies] = useState([]);
   const [movies, setMovies] = useState([]);
-  const [watched, setWatched] = useState(function () {
-    const storedValue = localStorage.getItem("watched");
-   console.log(storedValue)
-    return storedValue?JSON.parse(storedValue):[];
-  });
+  const [watched, setWatched] = useState([]);
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -235,17 +226,10 @@ export default function App() {
   }
   function handleAddWatched(movie) {
     setWatched((watched) => [...watched, movie]);
-    // localStorage.setItem("watched", JSON.stringify([...watched, movie]));
   }
   function handleDeleteWatched(id) {
     setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
   }
-  useEffect(
-    function () {
-      localStorage.setItem("watched", JSON.stringify(watched));
-    },
-    [watched]
-  );
 
   useEffect(
     function () {
@@ -269,6 +253,7 @@ export default function App() {
           setIsLoading(false);
         } catch (err) {
           if (error.name !== "AbortError") {
+            console.log(err.message);
             setError(err.message);
           }
         } finally {
