@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import StarRating from "./StarRating.js";
 import { useMovies } from "./useMovies.js";
+import { useLocalStorageState } from "./useLocalStorageState.js";
+import { useKey } from "./useKey.js";
 
 function NavBar({ children }) {
   return (
@@ -20,21 +22,13 @@ function Logo() {
 }
 function Search({ query, setQuery }) {
   const inputEl = useRef(null);
-
-  useEffect(
-    function () {
-      function callback(e) {
-        if (document.activeElement === inputEl.current) return;
-        if (e.code === "Enter") {
+useKey("Enter",function(){
+if (document.activeElement === inputEl.current) return;
           inputEl.current.focus();
           setQuery("");
-        }
-      }
-      document.addEventListener("keydown", callback);
-      return () => document.addEventListener("keydown", callback);
-    },
-    [setQuery]
-  );
+
+})
+  
   console.log(inputEl);
   return (
     <input
@@ -141,20 +135,7 @@ function MovieDetails({ watched, selectedId, onCloseMovie, onAddWatched }) {
     onCloseMovie();
   }
 
-  useEffect(
-    function () {
-      function callback(e) {
-        if (e.code === "Escape") {
-          onCloseMovie();
-        }
-      }
-      document.addEventListener("keydown", callback);
-      return () => {
-        document.removeEventListener("keydown", callback);
-      };
-    },
-    [onCloseMovie]
-  );
+  useKey('Escape',onCloseMovie)
   useEffect(
     function () {
       async function getMovieDetails() {
@@ -247,16 +228,12 @@ const average = (arr) =>
 export default function App() {
   // const [movies, setMovies] = useState([]);
   
-  const [watched, setWatched] = useState(function () {
-    const storedValue = localStorage.getItem("watched");
-    console.log(storedValue);
-    return storedValue ? JSON.parse(storedValue) : [];
-  });
+
   const [query, setQuery] = useState("");
   
   const [selectedId, setSelectedId] = useState(null);
  const {movies,isLoading,error} =useMovies(query)
-  
+  const [watched,setWatched]=useLocalStorageState([],"watched")
   
   function handleSelectMovie(id) {
     setSelectedId((selectedId) => (id === selectedId ? null : id));
@@ -271,12 +248,7 @@ export default function App() {
   function handleDeleteWatched(id) {
     setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
   }
-  useEffect(
-    function () {
-      localStorage.setItem("watched", JSON.stringify(watched));
-    },
-    [watched]
-  );
+ 
 
   
   return (
